@@ -98,21 +98,36 @@ function love.update(dt)
             gameState = 'serve'
         end
         
-        if (ball.x <= player1.x + PADDLE_WIDTH) and (ball.y >= player1.y and ball.y <= player1.y + PADDLE_HEIGHT) then
-            reverse_ball_velocity()
-
-        elseif (ball.x >= player2.x) and (ball.y >= player2.y and ball.y <= player2.y + PADDLE_HEIGHT) then
-            reverse_ball_velocity()
+        if collides(player1, ball) then
+            reverse_ball_velocity("player1")
+        elseif collides(player2, ball) then
+            reverse_ball_velocity("player2")
         end
+
+        -- if (ball.x <= player1.x + PADDLE_WIDTH) and (ball.y >= player1.y and ball.y <= player1.y + PADDLE_HEIGHT) then
+        --     reverse_ball_velocity()
+
+        -- elseif (ball.x >= player2.x) and (ball.y >= player2.y and ball.y <= player2.y + PADDLE_HEIGHT) then
+        --     reverse_ball_velocity()
+        -- end
     end
-
-
 end
 
-function reverse_ball_velocity()
-    ball.dx = -ball.dx
-    ball.dy = -ball.dy
+function collides(p, b)
+   return not(p.x > b.x + BALL_SIZE or p.y > b.y + BALL_SIZE or b.x > p.x + PADDLE_WIDTH or b.y > p.y + PADDLE_HEIGHT) 
+end
+
+
+function reverse_ball_velocity(player)
     
+    ball.dx = -ball.dx
+    if player == "player1" then
+        ball.x = player1.x + PADDLE_WIDTH
+
+    elseif player == "player2" then
+        ball.x = player2.x - BALL_SIZE
+    end
+    ball.dy = -ball.dy
 end
 
 function reset_ball()
