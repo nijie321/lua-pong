@@ -39,7 +39,11 @@ ball = {
     dy = 0
 }
 
+GAME_POINT = 3
+
 gameState = 'title'
+
+winner = ''
 
 function random_x_y()
     x = 60 + math.random(60)
@@ -89,14 +93,15 @@ function love.update(dt)
         ball_left_x = ball.x + BALL_SIZE / 2
         ball_right_x =  ball.x - BALL_SIZE / 2
         if ball_left_x <= 0 then
-            reset_ball()
             player2.score = player2.score + 1
+            reset_ball()
             gameState = 'serve'
         elseif ball_right_x >= VIRTUAL_WIDTH then
-            reset_ball()
             player1.score = player1.score + 1
+            reset_ball()
             gameState = 'serve'
         end
+        is_game_over()
         
         if collides(player1, ball) then
             reverse_ball_velocity("player1")
@@ -113,10 +118,24 @@ function love.update(dt)
     end
 end
 
+function is_game_over()
+    if player1.score == GAME_POINT then
+        winner = "player1"
+        gameState = "final"
+    elseif player2.score == GAME_POINT then
+        winner = "player2"
+        gameState = "final"
+    end
+end
+
 function collides(p, b)
    return not(p.x > b.x + BALL_SIZE or p.y > b.y + BALL_SIZE or b.x > p.x + PADDLE_WIDTH or b.y > p.y + PADDLE_HEIGHT) 
 end
 
+function reset_player()
+    player1.score = 0
+    player2.score = 0
+end
 
 function reverse_ball_velocity(player)
     
@@ -146,6 +165,9 @@ function love.keypressed(key)
             gameState = 'serve'
         elseif gameState == 'serve' then
             gameState = 'play'
+        elseif gameState == 'final' then
+            reset_player()
+            gameState = 'title'
         end
     end
 
@@ -165,6 +187,12 @@ function love.draw()
     if gameState == 'serve' then
         love.graphics.setFont(SMALL_FONT)
         love.graphics.printf("Press Enter to Serve!", 0, 10, VIRTUAL_WIDTH, 'center')
+    end
+
+    if gameState == 'final' then
+        love.graphics.setFont(LARGE_FONT)
+        love.graphics.printf(winner .. " WIN!", 0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.setFont(SMALL_FONT)
     end
 
     love.graphics.rectangle("fill", player1.x, player1.y, PADDLE_WIDTH, PADDLE_HEIGHT)
